@@ -2,12 +2,24 @@ from django.shortcuts import render
 from django.conf import settings as djangoSettings
 from django.core.files.storage import FileSystemStorage
 
+import rospy
+
 import time
 import datetime
 import ipfsapi
 import pyqrcode
 import os
 from .models import QualityMeaser
+
+def callPublishnode(ipfsHash):
+    rospy.wait_for_service('make_it_permanent')
+    try:
+        call_srv = rospy.ServiceProxy('make_it_permanent', MakeItPermanent)
+        result1 = call_srv(ipfsHash)
+        return result1.result  # expected contract address
+    except rospy.ServiceException, e:
+        print("Service call failed: {}".format(e))
+
 
 def getTimeStamp():
     ts = time.time()
@@ -31,12 +43,14 @@ def index(request):
         # publish to IPFS
         ipfsHash = publishToIPFS(savePath)
 
+        ethAddress = callPublishnode(ipfsHash)
+
         # save to DB
-        row = QualityMeaser.objects.create(path_to_file=savePath, ipfs_hash=ipfsHash)
+        row = QualityMeaser.objects.create(path_to_file=savePath, ipfs_hash=ipfsHash, eth_address=ethAddress)
         row.save()
 
         # generate QR-code
-        qrcode = pyqrcode.create(ipfsHash)
+        qrcode = pyqrcode.create("http://aira-csisensor.westeurope.cloudapp.azure.com:2345/getinfo/" + row.id)
         qrcode.png(os.path.dirname(savePath) + '/' + 'qr.png', scale=5)
 
         uploaded_file_url = os.path.dirname(savePath) + '/' + 'qr.png'
