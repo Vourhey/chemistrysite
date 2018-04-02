@@ -15,7 +15,8 @@
   </form>
   
   {% if uploaded_file_url %}
-    <p>File uploaded at: <img scr="{{ uploaded_file_url }}" height="245" width=auto></p>
+    <p>File uploaded at: {{ uploaded_file_url }} </p>
+    <img scr="{{ uploaded_file_url }}" height="245" width="245">
   {% endif %}
 </center>
 </body>

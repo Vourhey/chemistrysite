@@ -3,6 +3,7 @@ from django.db import models
 # Create your models here.
 class QualityMeaser(models.Model):
     path_to_file = models.CharField(max_length=200)
+    path_to_png = models.ImageField(upload_to = "%Y/%m/%d")
     ipfs_hash = models.CharField(max_length=50)
     eth_address = models.CharField(max_length=50)
 
