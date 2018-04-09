@@ -1,0 +1,3 @@
+<launch>
+    <node pkg="ask_bid_pkg" name="ask_bid_node" type="ask_bid" output="screen"/>
+</launch>
