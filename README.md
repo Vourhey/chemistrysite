@@ -8,5 +8,4 @@ requirements
 * account must have XRT and ETH
 * ipfs daemon --enable-pubsub-experiment
 * ipfs pubsub sub aira_market
-* crontab
-
+* 0 1 * * * . $HOME/chemistry-quality-control/services-pkg/install/setup.bash; rosservice call publishToBlockchain
