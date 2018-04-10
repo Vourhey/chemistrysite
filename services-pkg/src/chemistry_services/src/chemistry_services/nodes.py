@@ -1,5 +1,5 @@
-from . import makeask
+from . import makeaskbid
 
 def makeask_node():
-    makeask.MakeAsk().spin()
+    makeask.MakeAskBid().spin()
 
