@@ -1,4 +1,4 @@
-String pathtofile
+string pathtofile
 ---
-String result
-String address
+string result
+string address

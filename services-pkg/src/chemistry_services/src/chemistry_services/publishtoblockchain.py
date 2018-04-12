@@ -1,7 +1,7 @@
 import rospy, ipfsapi
 from std_msgs.msg import String
 from std_srvs.srv import Empty
-from chemistry_services.srv import *
+from chemistry_services.srv import PublishToBlockchainRequest, PublishToBlockchainResponse
 from robonomics_liability.msg import Liability
 from robonomics_lighthouse.msg import Result
 
@@ -23,7 +23,7 @@ class PublishToBlockchain:
             response.result = self.res
             response.address = self.address
             return response
-        rospy.Service('publish_to_blockchain', PublishToBlockchain, cb)
+        rospy.Service('publish_to_bc', PublishToBlockchainRequest, cb)
 
         def callback(data):
             rospy.loginfo("I got the task")
