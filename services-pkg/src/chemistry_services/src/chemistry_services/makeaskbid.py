@@ -5,7 +5,7 @@ from std_srvs.srv import Empty, EmptyResponse
 class MakeAskBid:
 
     model = 'QmWboFP8XeBtFMbNYK3Ne8Z3gKFBSR5iQzkKgeNgQz3dZ4'
-    token = '0x2b3ce4c151f7c9662fdd12e5b9c7b39b0d61e7f2'    # kovan
+    token = '0x2B3cE4c151f7c9662fdD12e5b9C7B39b0D61e7F2'    # kovan
     cost  = 10
     count = 1
     deadline = 8000000
