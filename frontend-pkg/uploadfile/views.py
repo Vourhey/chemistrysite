@@ -5,9 +5,10 @@ from django.shortcuts import redirect
 
 import time
 import datetime
-import ipfsapi
 import pyqrcode
 import os
+import rospy
+from chemistry_services.srv import * 
 from .models import QualityMeaser
 
 def getTimeStamp():
@@ -15,40 +16,43 @@ def getTimeStamp():
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
     return st
 
-def publishToIPFS(path):
-    api = ipfsapi.connect('127.0.0.1', 5001)
-    res = api.add(path)
-    return res['Hash']
+def callPublishToBC(path):
+    rospy.wait_for_service("publish_to_bc")
+    try:
+        pub = rospy.ServiceProxy('publish_to_bc', PublishToBC)
+        r = pub(savePath)
+        return [r.result, r.address]            
+    except rospy.ServiceException as e:
+        print ("Service call failed: {}".format(e))
 
 def index(request):
     if request.method == 'POST' and request.FILES['myfile']:
         myfile = request.FILES['myfile']
+        timeStamp = getTimeStamp()
 
         # save file to local storage
         fs = FileSystemStorage()
-        filename = fs.save(getTimeStamp() + '/' + myfile.name, myfile)
+        filename = fs.save(timeStamp + '/' + myfile.name, myfile)
         savePath = fs.url(filename)
 
         print(myfile.name)
         print(filename)
         print(savePath)
 
-        # publish to IPFS
-        ipfsHash = publishToIPFS(djangoSettings.MEDIA_ROOT + '/' + filename)
-        #ipfsHash = "Qm"
-
-        ethAddress = "0x" #callPublishnode(ipfsHash)
+        r = callPublishToBC(savePath)
+        ipfsHash = r.result
+        ethAddress = r.address
 
         # save to DB
-        row = QualityMeaser.objects.create(path_to_file=savePath, ipfs_hash=ipfsHash, eth_address=ethAddress)
+        row = QualityMeaser.objects.create(ipfs_hash=ipfsHash, eth_address=ethAddress, timestamp=timeStamp)
         row.save()
 
         # generate QR-code
-        qrcode = pyqrcode.create("http://ipfs.io/ipfs/" + ipfsHash)
-        print(djangoSettings.MEDIA_ROOT + '/' + getTimeStamp() + '/' + 'qr.png')
-        qrcode.png(djangoSettings.MEDIA_ROOT + '/' + getTimeStamp() + '/' + 'qr.png', scale=5)
+        qrcode = pyqrcode.create(row.id)
+        print(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png')
+        qrcode.png(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png', scale=5)
 
-        uploaded_file_url = fs.url(getTimeStamp() + '/qr.png')
+        uploaded_file_url = fs.url(timestamp + '/qr.png')
         '''      return render(request, 'uploadfile/index.html', {
             'uploaded_file_url': uploaded_file_url
         })'''

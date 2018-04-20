@@ -5,6 +5,7 @@ stdenv.mkDerivation rec {
   buildInputs = [
     python36
     python36Packages.virtualenv
-    python36Packages.pip
+#    python36Packages.pip
+    python36Packages.pillow
   ];
 }
