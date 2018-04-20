@@ -1,4 +1,5 @@
 import rospy, ipfsapi
+import base58
 from std_msgs.msg import String
 from std_srvs.srv import Empty
 from chemistry_services.srv import *
@@ -19,7 +20,7 @@ class PublishToBlockchain:
         def cb(req):
             rospy.loginfo("publish_to_blockchain service was called with file " + req.pathtofile)
             self.publishToBlockchain(req.pathtofile)
-            response = PublishToBlockchainResponse()
+            response = PublishToBCResponse()
             response.result = self.res
             response.address = self.address
             return response
@@ -33,9 +34,11 @@ class PublishToBlockchain:
             self.pub.publish(self.res)
 
             r = Result()
+            rospy.loginfo("finishing...")
             r.liability = self.address
-            r.result = bytes(self.res, "UTF-8")
-            rospy.loginfo("Sending the result")
+            r.result = base58.b58decode(self.res)[2:]
+#            r.result = bytes(self.res[2:], "UTF-8")
+#            r.result = b'00000000000000000000000000000042'
             self.signing_result.publish(r)
             self.liability_finished = True
         rospy.Subscriber("/task", String, callback)
