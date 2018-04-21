@@ -20,7 +20,7 @@ def callPublishToBC(path):
     rospy.wait_for_service("publish_to_bc")
     try:
         pub = rospy.ServiceProxy('publish_to_bc', PublishToBC)
-        r = pub(savePath)
+        r = pub(path)
         return [r.result, r.address]            
     except rospy.ServiceException as e:
         print ("Service call failed: {}".format(e))
@@ -33,18 +33,18 @@ def index(request):
         # save file to local storage
         fs = FileSystemStorage()
         filename = fs.save(timeStamp + '/' + myfile.name, myfile)
-        savePath = fs.url(filename)
+        savePath = fs.path(filename)
 
         print(myfile.name)
         print(filename)
         print(savePath)
 
         r = callPublishToBC(savePath)
-        ipfsHash = r.result
-        ethAddress = r.address
+        ipfsHash = r[0]
+        ethAddress = r[1]
 
         # save to DB
-        row = QualityMeaser.objects.create(ipfs_hash=ipfsHash, eth_address=ethAddress, timestamp=timeStamp)
+        row = QualityMeaser.objects.create(ipfs_hash=ipfsHash, eth_address=ethAddress)
         row.save()
 
         # generate QR-code
