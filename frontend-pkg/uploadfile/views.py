@@ -2,12 +2,14 @@ from django.shortcuts import render
 from django.conf import settings as djangoSettings
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect
+from django.http import HttpResponse
 
 import time
 import datetime
 import pyqrcode
 import os
 import rospy
+import ipfsapi
 from chemistry_services.srv import * 
 from .models import QualityMeaser
 
@@ -48,14 +50,24 @@ def index(request):
         row.save()
 
         # generate QR-code
-        qrcode = pyqrcode.create(row.id)
+        qrcode = pyqrcode.create('http://aira-csisensor.westeurope.cloudapp.azure.com:2345/getinfo/' + str(row.id))
         print(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png')
         qrcode.png(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png', scale=5)
 
-        uploaded_file_url = fs.url(timestamp + '/qr.png')
+        uploaded_file_url = fs.url(timeStamp + '/qr.png')
         '''      return render(request, 'uploadfile/index.html', {
             'uploaded_file_url': uploaded_file_url
         })'''
         return redirect(uploaded_file_url)
     return render(request, 'uploadfile/index.html')
+
+def getinfo(request, id):
+    print("id is {}".format(id))
+    row = QualityMeaser.objects.get(id=id)
+    print(row.ipfs_hash)
+    
+    api = ipfsapi.connect('127.0.0.1', 5001)
+    content = api.cat(row.ipfs_hash)
+    content = content.decode()
+    return HttpResponse('<pre>' + content + '</pre>')
 
