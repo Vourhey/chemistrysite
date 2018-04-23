@@ -1,6 +1,7 @@
 import rospy
 from robonomics_lighthouse.msg import Ask, Bid
 from std_srvs.srv import Empty, EmptyResponse
+from web3 import Web3, HTTPProvider
 
 class MakeAskBid:
 
@@ -8,10 +9,13 @@ class MakeAskBid:
     token = '0x2B3cE4c151f7c9662fdD12e5b9C7B39b0D61e7F2'    # kovan
     cost  = 10
     count = 1
-    deadline = 8000000
+    deadline = 0
 
     def __init__(self):
         rospy.init_node("make_ask_bid_node")
+
+        self.web3 = Web3(HTTPProvider("http://127.0.0.1:8545"))
+
         self.signing_ask = rospy.Publisher('lighthouse/infochan/signing/ask', Ask, queue_size=128)
         self.signing_bid = rospy.Publisher('lighthouse/infochan/signing/bid', Bid, queue_size=128)
 
@@ -42,6 +46,10 @@ class MakeAskBid:
 
     def makeask(self):
         rospy.loginfo("about to make an ask")
+
+        block = self.web3.eth.getBlock('latest')
+        self.deadline = block.number + 10000 # should be enough for a day
+
         msg = Ask()
         msg.model = self.model
         msg.objective = 'QmUo3vvSXZPQaQWjb3cH3qQo1hc8vAUqNnqbdVABbSLb6r' # should publish to /task topic
