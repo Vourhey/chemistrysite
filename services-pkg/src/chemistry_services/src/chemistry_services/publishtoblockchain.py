@@ -4,7 +4,6 @@ from std_msgs.msg import String
 from std_srvs.srv import Empty
 from chemistry_services.srv import *
 from robonomics_liability.msg import Liability
-from robonomics_lighthouse.msg import Result
 
 class PublishToBlockchain:
 
@@ -15,7 +14,6 @@ class PublishToBlockchain:
         rospy.init_node('publish_to_blockchain_node')
         self.pub = rospy.Publisher("result", String, queue_size=10)
         self.ipfs = ipfsapi.connect("localhost", 5001)
-        self.signing_result = rospy.Publisher('lighthouse/infochan/signing/result', Result, queue_size=10) 
 
         def cb(req):
             rospy.loginfo("publish_to_blockchain service was called with file " + req.pathtofile)
@@ -33,13 +31,10 @@ class PublishToBlockchain:
             rospy.loginfo("Result is " + self.res)
             self.pub.publish(self.res)
 
-            r = Result()
+            rospy.wait_for_service("liability/finish")
+            fin = rospy.ServiceProxy("liability/finish", Empty)
             rospy.loginfo("finishing...")
-            r.liability = self.address
-            r.result = base58.b58decode(self.res)[2:]
-#            r.result = bytes(self.res[2:], "UTF-8")
-#            r.result = b'00000000000000000000000000000042'
-            self.signing_result.publish(r)
+            fin()
             self.liability_finished = True
         rospy.Subscriber("/task", String, callback)
 
