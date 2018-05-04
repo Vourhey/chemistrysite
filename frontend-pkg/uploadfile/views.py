@@ -68,6 +68,6 @@ def getinfo(request, id):
     
     api = ipfsapi.connect('127.0.0.1', 5001)
     content = api.cat(row.ipfs_hash)
-    content = content.decode()
+    content = content.decode(errors="replace")
     return HttpResponse('<pre>' + content + '</pre>')
 
