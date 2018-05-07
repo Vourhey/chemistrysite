@@ -34,6 +34,10 @@ class MakeAskBid:
 
     def makebid(self):
         rospy.loginfo("about to make a bid")
+        
+        block = self.web3.eth.getBlock('latest')
+        self.deadline = block.number + 10000 # should be enough for a day
+
         msg = Bid()
         msg.model = self.model
         msg.token = self.token
@@ -46,10 +50,6 @@ class MakeAskBid:
 
     def makeask(self):
         rospy.loginfo("about to make an ask")
-
-        block = self.web3.eth.getBlock('latest')
-        self.deadline = block.number + 10000 # should be enough for a day
-
         msg = Ask()
         msg.model = self.model
         msg.objective = 'QmUo3vvSXZPQaQWjb3cH3qQo1hc8vAUqNnqbdVABbSLb6r' # should publish to /task topic
