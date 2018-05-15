@@ -50,10 +50,6 @@ class PublishToBlockchain:
         rospy.loginfo("instide publishToBlockchain('" + pathtofile + "')")
         self.liability_finished = False
         self.path_to_file = pathtofile
-        rospy.wait_for_service('make_ask')
-        m = rospy.ServiceProxy('make_ask', Empty)
-        rospy.loginfo("Let's call make_ask service")
-        m()
         
         while not self.liability_finished:
             rospy.sleep(1)
