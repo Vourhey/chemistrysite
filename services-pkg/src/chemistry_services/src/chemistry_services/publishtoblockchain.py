@@ -7,25 +7,35 @@ from robonomics_liability.msg import Liability
 
 class PublishToBlockchain:
 
-    liability_finished = False
+    got_file = False
     path_to_file = ''
 
     def __init__(self):
         rospy.init_node('publish_to_blockchain_node')
         self.pub = rospy.Publisher("result", String, queue_size=10)
         self.ipfs = ipfsapi.connect("localhost", 5001)
+        self.got_file = False
 
         def cb(req):
             rospy.loginfo("publish_to_blockchain service was called with file " + req.pathtofile)
-            self.publishToBlockchain(req.pathtofile)
+            self.path_to_file = req.pathtofile
+            self.got_file = True
+            return PublishToBCResponse()
+        rospy.Service('file_for_publishing', PublishToBC, cb)
+
+        def get_file_cb(req):
             response = PublishToBCResponse()
             response.result = self.res
             response.address = self.address
             return response
-        rospy.Service('publish_to_bc', PublishToBC, cb)
+        rospy.Service('get_result', PublishToBC, get_file_cb)
 
         def callback(data):
             rospy.loginfo("I got the task")
+
+            while not self.got_file:
+                rospy.sleep(1)
+
             hash = self.ipfs.add(self.path_to_file)
             self.res = hash['Hash']
             rospy.loginfo("Result is " + self.res)
@@ -35,7 +45,6 @@ class PublishToBlockchain:
             fin = rospy.ServiceProxy("liability/finish", Empty)
             rospy.loginfo("finishing...")
             fin()
-            self.liability_finished = True
         rospy.Subscriber("/task", String, callback)
 
         def save_address(data):
@@ -45,12 +54,4 @@ class PublishToBlockchain:
 
     def spin(self):
         rospy.spin()
-
-    def publishToBlockchain(self, pathtofile):
-        rospy.loginfo("instide publishToBlockchain('" + pathtofile + "')")
-        self.liability_finished = False
-        self.path_to_file = pathtofile
-        
-        while not self.liability_finished:
-            rospy.sleep(1)
 

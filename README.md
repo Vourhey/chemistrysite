@@ -9,4 +9,5 @@ requirements
 * account must have XRT and ETH
 * ipfs daemon --enable-pubsub-experimentt
 * crontab: * */3 * * * . $HOME/chemistry-quality-control/services-pkg/install/setup.bash; rosservice call /make_ask
+* approve for spender and miner
 

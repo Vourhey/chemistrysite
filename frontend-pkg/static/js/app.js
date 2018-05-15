@@ -45,7 +45,7 @@ function sendAsk() {
 function app() {
   var socket = io('https://wss.pool.aira.life');
   var signer = (account, hash) => Promise.promisify(web3.eth.sign)(account, hash);
-  var lighthouse = '0x45dAAa2645aC52366B2F15c69eec9E598D9320D7';
+  var lighthouse = '0x36d5D6C5BB8fFDC30e2699Bb1E397Fb48aC6CE5d';
 
   robonomics = new Robonomics.default({
     web3,
