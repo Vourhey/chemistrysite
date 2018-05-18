@@ -18,14 +18,22 @@ def getTimeStamp():
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d_%H-%M-%S')
     return st
 
-def callPublishToBC(path):
-    rospy.wait_for_service("publish_to_bc")
+def getResult():
+    rospy.wait_for_service("/get_result")
     try:
-        pub = rospy.ServiceProxy('publish_to_bc', PublishToBC)
-        r = pub(path)
+        pub = rospy.ServiceProxy('/get_result', PublishToBC)
+        r = pub("")
         return [r.result, r.address]            
     except rospy.ServiceException as e:
         print ("Service call failed: {}".format(e))
+
+def publishAFileToBC(path):
+    rospy.wait_for_service("/file_for_publishing")
+    try:
+        pub = rospy.ServiceProxy("/file_for_publishing", PublishToBC)
+        r = pub(path)
+    except rospy.ServiceException as e:
+        print("Service call failed: {}".format(e))
 
 def index(request):
     if request.method == 'POST' and request.FILES['myfile']:
@@ -41,7 +49,8 @@ def index(request):
         print(filename)
         print(savePath)
 
-        r = callPublishToBC(savePath)
+        publishAFileToBC(savePath)
+        r = getResult()
         ipfsHash = r[0]
         ethAddress = r[1]
 

@@ -15,6 +15,33 @@
 </head>
 <body>
 <button onclick="sendAsk()">ask</button>
+<br>
+
+    <script>
+    function sendFile (  ) {
+        console.log("I'm about to send a file");
+        var fd = new FormData();
+        fd.append( 'file',  input.files[0] );
+
+        $.ajax({
+          url: 'http://127.0.0.1:8000/',
+          data: fd,
+          processData: false,
+          contentType: false,
+          type: 'POST',
+          success: function(data){
+            alert(data);
+          }
+        });
+    }
+    </script>
+
+ <form method="post" enctype="multipart/form-data"  >
+  {% csrf_token %}
+  <input type="file" name="myfile"> 
+  <button onclick="sendFile">Upload</button>
+</form>
+
 <div style="overflow: hidden;">
   <div style="width:30%;float:left;border: 1px solid #eee;padding:10px;margin-right:10px">
     <h2>Ask</h2>
