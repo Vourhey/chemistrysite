@@ -24,6 +24,9 @@ class PublishToBlockchain:
         rospy.Service('file_for_publishing', PublishToBC, cb)
 
         def get_file_cb(req):
+            while not hasattr(self, 'res'):
+                rospy.sleep(1)
+
             response = PublishToBCResponse()
             response.result = self.res
             response.address = self.address
