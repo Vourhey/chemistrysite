@@ -30,6 +30,8 @@ class PublishToBlockchain:
             response = PublishToBCResponse()
             response.result = self.res
             response.address = self.address
+            del self.res
+            self.got_file = False
             return response
         rospy.Service('get_result', PublishToBC, get_file_cb)
 
