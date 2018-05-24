@@ -102,6 +102,8 @@ function app() {
                 "<li><b>promisor: </b>" + info.promisor + "</li>" +
               "</ul>" +
             "</div>");
+
+	    $('#form_post').show();
           });
       }
     });
