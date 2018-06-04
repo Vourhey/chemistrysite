@@ -22,6 +22,17 @@ Provider.prototype.watch = function(chanel, cb) {
 
 var robonomics, chanel, message;
 
+function formatXRTDecimals (amount) {
+  return (new web3.BigNumber(amount)).shift(-9).toNumber();
+}
+
+function sendApprove() {
+    robonomics.xrt.send('approve', [robonomics.address.factory, 1000000000], { from: web3.eth.accounts[0] })
+    .then((result) => {
+        console.log(result)
+    });
+}
+
 function sendAsk() {
   web3.eth.getBlock('latest', (e, r) => {
     var ask = message.create({
@@ -113,6 +124,21 @@ function app() {
 window.addEventListener('load', () => {
   if (typeof web3 !== 'undefined') {
     app()
+
+    robonomics.xrt.call('balanceOf', [web3.eth.accounts[0]])
+    .then((balance) => {
+        console.log('My balance', formatXRTDecimals(balance))
+        $('#xrt_balance').html(formatXRTDecimals(balance))
+    });
+
+    robonomics.xrt.call('allowance', [web3.eth.accounts[0], robonomics.address.factory])
+    .then((amount) => {
+        console.log('My approve', formatXRTDecimals(amount))
+        if(amount > 0) {
+            $('#approve_btn').prop('disabled', true);
+        }
+    });
+
     console.log('ok');
   } else {
     console.error('not web3');
