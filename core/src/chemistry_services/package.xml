@@ -4,9 +4,8 @@
   <version>0.1.0</version>
   <description>The chemistry-services package</description>
   <maintainer email="vadim.razorq@gmail.com">Vadim Manaenko</maintainer>
-  <license>BSD</license>
-  <!-- Example: -->
-  <!-- <url type="website">http://wiki.ros.org/ask_bid_pkg</url> -->
+  <license>BSD3</license>
+  <url type="website">https://quality.nanodoctor.pro/</url>
   <author email="vadim.razorq@gmail.com">Vadim Manaenko</author>
 
   <buildtool_depend>catkin</buildtool_depend>
