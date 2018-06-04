@@ -59,24 +59,23 @@ def index(request):
         row.save()
 
         # generate QR-code
-        qrcode = pyqrcode.create('http://aira-csisensor.westeurope.cloudapp.azure.com:2345/getinfo/' + str(row.id))
+        qrcode = pyqrcode.create('https://quality.nanodoctor.pro/getinfo/' + str(row.id))
         print(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png')
         qrcode.png(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png', scale=5)
 
         uploaded_file_url = fs.url(timeStamp + '/qr.png')
-        '''      return render(request, 'uploadfile/index.html', {
-            'uploaded_file_url': uploaded_file_url
-        })'''
         return redirect(uploaded_file_url)
     return render(request, 'uploadfile/index.html')
 
 def getinfo(request, id):
     print("id is {}".format(id))
+    '''
     row = QualityMeaser.objects.get(id=id)
     print(row.ipfs_hash)
     
     api = ipfsapi.connect('127.0.0.1', 5001)
     content = api.cat(row.ipfs_hash)
     content = content.decode(errors="replace")
-    return HttpResponse('<pre>' + content + '</pre>')
+    '''
+    return render(request, 'uploadfile/success.html')
 

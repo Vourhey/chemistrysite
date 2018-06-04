@@ -18,8 +18,13 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
+from django.conf.urls import url
+from django.http import HttpResponse
+
+
 urlpatterns = [
     path('', include('uploadfile.urls')),
+    url(r'^robots.txt', lambda x: HttpResponse("User-Agent: *\nDisallow: /", content_type="text/plain"), name="robots_file"),
     path('admin/', admin.site.urls),
 ] 
 
