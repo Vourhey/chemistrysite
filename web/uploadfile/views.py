@@ -3,6 +3,7 @@ from django.conf import settings as djangoSettings
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 import time
 import datetime
@@ -35,6 +36,7 @@ def publishAFileToBC(path):
     except rospy.ServiceException as e:
         print("Service call failed: {}".format(e))
 
+@csrf_exempt
 def index(request):
     if request.method == 'POST' and request.FILES['myfile']:
         myfile = request.FILES['myfile']

@@ -178,11 +178,11 @@ include_directories(
 # )
 
 catkin_install_python(
-    PROGRAMS
-        scripts/makeasksrv
-	scripts/publishsrv
-    DESTINATION
-        ${CATKIN_PACKAGE_BIN_DESTINATION}
+  PROGRAMS
+    scripts/makeasksrv
+	  scripts/publishsrv
+  DESTINATION
+    ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)

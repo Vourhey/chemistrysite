@@ -6,7 +6,7 @@ from web3 import Web3, HTTPProvider
 class MakeAskBid:
 
     model = 'QmWboFP8XeBtFMbNYK3Ne8Z3gKFBSR5iQzkKgeNgQz3dZ4'
-    token = '0x0Ef7fCB816fd725819e071eFB48F7EACb85c1A6A'    # kovan
+    token = '0xdEA33F21294399c675C8F1D6C4a1F39b0719BCBf'    # kovan
     cost  = 1
     count = 1
 
@@ -24,9 +24,9 @@ class MakeAskBid:
 
             msg = Bid()
             msg.model = self.model
+            msg.objective   = m.objective
             msg.token = self.token
             msg.cost = self.cost
-            msg.count = self.count
             msg.lighthouseFee = 0
             msg.deadline = deadline
             self.signing_bid.publish(msg)
