@@ -5,7 +5,7 @@ from web3 import Web3, HTTPProvider
 
 class MakeAskBid:
 
-    model = 'QmWboFP8XeBtFMbNYK3Ne8Z3gKFBSR5iQzkKgeNgQz3dZ4'
+    model = 'QmWboFP8XeBtFMbCeMiStRY3gKFBSR5iQzkKgeNgQz3dZ4'
     token = '0xdEA33F21294399c675C8F1D6C4a1F39b0719BCBf'    # kovan
     cost  = 1
     count = 1

@@ -25,7 +25,7 @@ SECRET_KEY = '8e6+ps-eq#(!vajd_aazz8z7_^z^ct06y^t)))8^2hxg@-18^8'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['quality.nanodoctor.pro']
 
 
 # Application definition
