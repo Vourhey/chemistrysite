@@ -39,6 +39,11 @@ def publishAFileToBC(path):
 @csrf_exempt
 def index(request):
     if request.method == 'POST' and request.FILES['myfile']:
+        batch = int(request.POST.get("batchNumber", ""))
+        placeOfProduction = request.POST.get("placeOfProduction", "")
+        tecnologyOwner = request.POST.get("tecnologyOwner", "")
+        responsibleForSelection = request.POST.get("responsibleForSelection", "")
+        responsibleForBatch = request.POST.get("responsibleForBatch", "")
         myfile = request.FILES['myfile']
         timeStamp = getTimeStamp()
 
@@ -56,12 +61,21 @@ def index(request):
         ipfsHash = r[0]
         ethAddress = r[1]
 
+        concentration = 70
+
         # save to DB
-        row = QualityMeaser.objects.create(ipfs_hash=ipfsHash, eth_address=ethAddress)
+        row = QualityMeaser.objects.create(ipfs_hash=ipfsHash, 
+                                           eth_address=ethAddress,
+                                           batch_number=batch,
+                                           place=placeOfProduction,
+                                           owner=tecnologyOwner,
+                                           responsible_for_selection=responsibleForSelection,
+                                           responsible_for_batch=responsibleForBatch,
+                                           concentration=concentration)
         row.save()
 
         # generate QR-code
-        qrcode = pyqrcode.create('https://quality.nanodoctor.pro/getinfo/' + str(row.id))
+        qrcode = pyqrcode.create('https://quality.nanodoctor.pro/getinfo/' + ipfsHash)
         print(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png')
         qrcode.png(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png', scale=5)
 
@@ -69,8 +83,8 @@ def index(request):
         return redirect(uploaded_file_url)
     return render(request, 'uploadfile/index.html')
 
-def getinfo(request, id):
-    print("id is {}".format(id))
+def getinfo(request, hash):
+    print("hash is {}".format(hash))
     '''
     row = QualityMeaser.objects.get(id=id)
     print(row.ipfs_hash)
