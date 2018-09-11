@@ -85,13 +85,27 @@ def index(request):
 
 def getinfo(request, hash):
     print("hash is {}".format(hash))
-    '''
-    row = QualityMeaser.objects.get(id=id)
-    print(row.ipfs_hash)
     
+    row = QualityMeaser.objects.get(ipfs_hash=hash)
+
+    arguments = {
+        'date': row.timestamp,
+        'batch_number': row.batch_number,
+        'place': row.place,
+        'owner': row.owner,
+        'selection': row.responsible_for_selection,
+        'responsible': row.responsible_for_batch,
+        'concentration': row.concentration,
+        'ipfs': row.ipfs_hash
+    }
+
+    # print(row)
+
+    '''    
     api = ipfsapi.connect('127.0.0.1', 5001)
     content = api.cat(row.ipfs_hash)
     content = content.decode(errors="replace")
     '''
-    return render(request, 'uploadfile/success.html')
+
+    return render(request, 'uploadfile/success.html', arguments)
 

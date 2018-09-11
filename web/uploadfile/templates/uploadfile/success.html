@@ -2,6 +2,10 @@
 <html lang="en">
 <head>
     <title>Nano Doctor</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <style type="text/css">
         * {
             box-sizing: border-box;
@@ -20,7 +24,7 @@
             font-weight: 600;
         }
         .block {
-            width: 570px;
+            width: 990px;
             padding: 34px;
             background: #fff;
             margin: 50px auto;
@@ -34,7 +38,42 @@
     <div class="block">
         <img src="{% static "img/success.png" %}" alt="" />
         <h1>Nano Doctor</h2>
-        <div>Safe use of our product</div>
+        <div>
+            <table class="table table-striped" style="text-align: left;">
+                <tr>
+                    <th scope="row">Date:</th>
+                    <td>{{ date }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Batch number:</th>
+                    <td>{{ batch_number }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Place:</th>
+                    <td>{{ place }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Owner:</th>
+                    <td>{{ owner }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Responsible for selection:</th>
+                    <td>{{ selection }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Responsible for batch:</th>
+                    <td>{{ responsible }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Concentration:</th>
+                    <td>{{ concentration }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Log file:</th>
+                    <td><a href="https://ipfs.io/ipfs/{{ ipfs }}">{{ ipfs }}</a></td>
+                </tr>
+            </table>
+        </div>
     </div>
 </body>
 </html>
