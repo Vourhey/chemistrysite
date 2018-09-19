@@ -58,6 +58,47 @@
                 Заказать
               </v-btn>
 
+              <v-flex md12>
+                <v-card v-if="liability">
+                <!-- <v-card> -->
+                  <v-card-title primary-title>
+                    <div>
+                      <h3 class="headline mb-0">Отправить файл</h3>
+                    </div>
+                  </v-card-title>
+                  <v-flex>
+                    <form id="form_post"  enctype="multipart/form-data" method="post" action="/">
+                      <div>
+                        <label><b>Batch number:</b></label>
+                        <input type="text" name="batchNumber" value="1"/>
+                      </div>
+                      <div>
+                        <label><b>Place of production:</b></label>
+                        <input type="text" name="placeOfProduction" value="St.Petersburg"/>
+                      </div>
+                      <div>
+                        <label><b>Owner of the technology:</b></label>
+                        <input type="text" name="tecnologyOwner" value="Nanodoctor"/>
+                      </div>
+                      <div>
+                        <label><b>Who is responsible for selection:</b></label>
+                        <input type="text" name="responsibleForSelection" />
+                      </div>
+                      <div>
+                        <label><b>Who is responsible for batch:</b></label>
+                        <input type="text" name="responsibleForBatch"/>
+                      </div>
+                      <div>
+                        <input type="file" name="myfile" />
+                      </div>
+                      <div>
+                        <input type="submit" value="Upload" />
+                      </div>
+                    </form>
+                  </v-flex>
+                </v-card>
+              </v-flex>
+
             </v-card-text>
           </v-card>
         </v-flex>
@@ -221,8 +262,11 @@ export default {
         })
     },
     setResult (result, check = true) {
-      this.liability.result = result
-      this.liability.check = check
+      this.liability = {
+        ...this.liability,
+        result,
+        check
+      }
     },
     newLiability (liability) {
       console.log('liability ask', liability.address)
