@@ -53,13 +53,6 @@ def index(request):
         infoDict['concentration']   = 70
 
         myfile = request.FILES['myfile']
-
-        saveInfoPath = djangoSettings.MEDIA_ROOT + '/' + timeStamp + "/info.txt"
-        print(saveInfoPath)
-        with open(saveInfoPath, "w") as f:
-            f.write(json.dumps(infoDict))
-            f.close()
-
         # save file to local storage
         fs = FileSystemStorage()
         filename = fs.save(timeStamp + '/' + 'data', myfile)
@@ -67,13 +60,19 @@ def index(request):
 
         print(savePath)
 
+        saveInfoPath = djangoSettings.MEDIA_ROOT + '/' + timeStamp + "/info.txt"
+        print(saveInfoPath)
+        with open(saveInfoPath, "w") as f:
+            f.write(json.dumps(infoDict))
+            f.close()
+
         zipFile = djangoSettings.MEDIA_ROOT + '/' + timeStamp + "/publish.zip"
         with zipfile.ZipFile(zipFile, 'w') as z: 
-            z.write(saveInfoPath)
-            z.write(savePath)
+            z.write(saveInfoPath, os.path.basename(saveInfoPath))
+            z.write(savePath, os.path.basename(savePath))
             z.close()
 
-        publishAFileToBC(savePath)
+        publishAFileToBC(zipFile)
         r = getResult()
         ipfsHash = r[0]
         ethAddress = r[1]
@@ -109,7 +108,7 @@ def getinfo(request, hash):
 
     ipfs = ipfsapi.connect('127.0.0.1', 5001)
     os.chdir(djangoSettings.MEDIA_ROOT + '/')
-    api.get(hash)
+    ipfs.get(hash)
 
     arguments = {}
 
