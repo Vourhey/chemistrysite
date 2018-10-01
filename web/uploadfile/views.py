@@ -8,7 +8,9 @@ from django.views.decorators.csrf import csrf_exempt
 import time
 import datetime
 import pyqrcode
+import zipfile
 import os
+import json
 import rospy
 import ipfsapi
 from chemistry_services.srv import * 
@@ -39,31 +41,47 @@ def publishAFileToBC(path):
 @csrf_exempt
 def index(request):
     if request.method == 'POST' and request.FILES['myfile']:
-        batch = int(request.POST.get("batchNumber", ""))
-        placeOfProduction = request.POST.get("placeOfProduction", "")
-        tecnologyOwner = request.POST.get("tecnologyOwner", "")
-        responsibleForSelection = request.POST.get("responsibleForSelection", "")
-        responsibleForBatch = request.POST.get("responsibleForBatch", "")
-        myfile = request.FILES['myfile']
         timeStamp = getTimeStamp()
+        infoDict = {}
+
+        infoDict['date']            = timeStamp
+        infoDict['batch_number']    = int(request.POST.get("batchNumber", ""))
+        infoDict['place']           = request.POST.get("placeOfProduction", "")
+        infoDict['owner']           = request.POST.get("tecnologyOwner", "")
+        infoDict['selection']       = request.POST.get("responsibleForSelection", "")
+        infoDict['responsible']     = request.POST.get("responsibleForBatch", "")
+        infoDict['concentration']   = 70
+
+        myfile = request.FILES['myfile']
+
+        saveInfoPath = djangoSettings.MEDIA_ROOT + '/' + timeStamp + "/info.txt"
+        print(saveInfoPath)
+        with open(saveInfoPath, "w") as f:
+            f.write(json.dumps(infoDict))
+            f.close()
 
         # save file to local storage
         fs = FileSystemStorage()
-        filename = fs.save(timeStamp + '/' + myfile.name, myfile)
+        filename = fs.save(timeStamp + '/' + 'data', myfile)
         savePath = fs.path(filename)
 
-        print(myfile.name)
-        print(filename)
         print(savePath)
+
+        zipFile = djangoSettings.MEDIA_ROOT + '/' + timeStamp + "/publish.zip"
+        with zipfile.ZipFile(zipFile, 'w') as z: 
+            z.write(saveInfoPath)
+            z.write(savePath)
+            z.close()
 
         publishAFileToBC(savePath)
         r = getResult()
         ipfsHash = r[0]
         ethAddress = r[1]
 
-        concentration = 70
+        # concentration = 70
 
         # save to DB
+        '''
         row = QualityMeaser.objects.create(ipfs_hash=ipfsHash, 
                                            eth_address=ethAddress,
                                            batch_number=batch,
@@ -73,6 +91,7 @@ def index(request):
                                            responsible_for_batch=responsibleForBatch,
                                            concentration=concentration)
         row.save()
+        '''
 
         # generate QR-code
         qrcode = pyqrcode.create('https://quality.nanodoctor.pro/getinfo/' + ipfsHash)
@@ -86,8 +105,22 @@ def index(request):
 def getinfo(request, hash):
     print("hash is {}".format(hash))
     
-    row = QualityMeaser.objects.get(ipfs_hash=hash)
+    # row = QualityMeaser.objects.get(ipfs_hash=hash)
 
+    ipfs = ipfsapi.connect('127.0.0.1', 5001)
+    os.chdir(djangoSettings.MEDIA_ROOT + '/')
+    api.get(hash)
+
+    arguments = {}
+
+    with zipfile.ZipFile(hash, 'r') as z:
+        with z.open('info.txt', 'r') as info:
+            data = info.read().decode('utf-8', 'ignore')
+            arguments = json.loads(data)
+
+    arguments['ipfs'] = hash
+
+    '''
     arguments = {
         'date': row.timestamp,
         'batch_number': row.batch_number,
@@ -98,14 +131,9 @@ def getinfo(request, hash):
         'concentration': row.concentration,
         'ipfs': row.ipfs_hash
     }
+    '''
 
     # print(row)
-
-    '''    
-    api = ipfsapi.connect('127.0.0.1', 5001)
-    content = api.cat(row.ipfs_hash)
-    content = content.decode(errors="replace")
-    '''
 
     return render(request, 'uploadfile/success.html', arguments)
 
