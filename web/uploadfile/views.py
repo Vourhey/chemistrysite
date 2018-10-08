@@ -14,7 +14,6 @@ import json
 import rospy
 import ipfsapi
 from chemistry_services.srv import * 
-from .models import QualityMeaser
 
 def getTimeStamp():
     ts = time.time()
@@ -38,6 +37,22 @@ def publishAFileToBC(path):
     except rospy.ServiceException as e:
         print("Service call failed: {}".format(e))
 
+def extractConcentration(path):
+    with open(path, encoding='cp1252') as f:    # not universal because of cp1252
+        lines = f.read().splitlines()
+
+        fit = []
+        for l in lines:
+            if l.startswith('Concentration'):
+                toappend = l.split(' ')[1]
+                fit.append(toappend.replace(',', '.'))  # correct , to . for int convertion
+
+        fit = list(map(lambda x: x.split('±')[0], fit))
+        print(fit)
+        fit = list(map(lambda x: int(float(x)), fit))
+
+        return sum(fit) / len(fit)
+
 @csrf_exempt
 def index(request):
     if request.method == 'POST' and request.FILES['myfile']:
@@ -50,7 +65,7 @@ def index(request):
         infoDict['owner']           = request.POST.get("tecnologyOwner", "")
         infoDict['selection']       = request.POST.get("responsibleForSelection", "")
         infoDict['responsible']     = request.POST.get("responsibleForBatch", "")
-        infoDict['concentration']   = 70
+        infoDict['signature']       = request.POST.get("signature", "")
 
         myfile = request.FILES['myfile']
         # save file to local storage
@@ -59,6 +74,8 @@ def index(request):
         savePath = fs.path(filename)
 
         print(savePath)
+
+        infoDict['concentration'] = extractConcentration(savePath)
 
         saveInfoPath = djangoSettings.MEDIA_ROOT + '/' + timeStamp + "/info.txt"
         print(saveInfoPath)
@@ -77,21 +94,6 @@ def index(request):
         ipfsHash = r[0]
         ethAddress = r[1]
 
-        # concentration = 70
-
-        # save to DB
-        '''
-        row = QualityMeaser.objects.create(ipfs_hash=ipfsHash, 
-                                           eth_address=ethAddress,
-                                           batch_number=batch,
-                                           place=placeOfProduction,
-                                           owner=tecnologyOwner,
-                                           responsible_for_selection=responsibleForSelection,
-                                           responsible_for_batch=responsibleForBatch,
-                                           concentration=concentration)
-        row.save()
-        '''
-
         # generate QR-code
         qrcode = pyqrcode.create('https://quality.nanodoctor.pro/getinfo/' + ipfsHash)
         print(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png')
@@ -103,8 +105,6 @@ def index(request):
 
 def getinfo(request, hash):
     print("hash is {}".format(hash))
-    
-    # row = QualityMeaser.objects.get(ipfs_hash=hash)
 
     ipfs = ipfsapi.connect('127.0.0.1', 5001)
     os.chdir(djangoSettings.MEDIA_ROOT + '/')
@@ -131,8 +131,6 @@ def getinfo(request, hash):
         'ipfs': row.ipfs_hash
     }
     '''
-
-    # print(row)
 
     return render(request, 'uploadfile/success.html', arguments)
 

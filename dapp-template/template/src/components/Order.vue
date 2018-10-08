@@ -67,7 +67,7 @@
                     </div>
                   </v-card-title>
                   <v-flex>
-                    <form id="form_post"  enctype="multipart/form-data" method="post" action="/">
+                    <form id="form_post"  enctype="multipart/form-data" @submit.prevent="handleSubmit">
                       <div>
                         <label><b>Batch number:</b></label>
                         <input type="text" name="batchNumber" value="1"/>
@@ -305,6 +305,36 @@ export default {
           .catch((e) => {
             this.loadingOrder = false
           })
+      })
+    },
+    handleSubmit () {
+      let formData = new FormData()
+
+      const f = event.target
+      const batch = f.querySelector('input[name="batchNumber"]').value
+      const placeOfProduction = f.querySelector('input[name="placeOfProduction"]').value
+      const technologyOwner = f.querySelector('input[name="technologyOwner"]').value
+      const responsibleForSelection = f.querySelector('input[name="responsibleForSelection"]').value
+      const responsibleForBatch = f.querySelector('input[name="responsibleForBatch"]').value
+      const finput = f.querySelector('input[type="file"]')
+      console.log(finput)
+
+      const message = batch + ' ' + placeOfProduction + ' ' + technologyOwner + ' ' + responsibleForSelection + ' ' + responsibleForBatch
+      web3.personal.sign(web3.fromUtf8(message), web3.eth.coinbase, (e, r) => {
+        console.log(r)
+        // this.signature = r
+        formData.append('myfile', finput.files[0], finput.files[0].name)
+        formData.append('batchNumber', batch)
+        formData.append('placeOfProduction', placeOfProduction)
+        formData.append('technologyOwner', technologyOwner)
+        formData.append('responsibleForSelection', responsibleForSelection)
+        formData.append('responsibleForBatch', responsibleForBatch)
+        formData.append('signature', r)
+
+        fetch('https://quality.nanodoctor.pro/', {
+          method: 'POST',
+          body: formData
+        })
       })
     }
   }
