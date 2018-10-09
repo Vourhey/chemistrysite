@@ -78,7 +78,7 @@
                       </div>
                       <div>
                         <label><b>Owner of the technology:</b></label>
-                        <input type="text" name="tecnologyOwner" value="Nanodoctor"/>
+                        <input type="text" name="technologyOwner" value="Nanodoctor"/>
                       </div>
                       <div>
                         <label><b>Who is responsible for selection:</b></label>
