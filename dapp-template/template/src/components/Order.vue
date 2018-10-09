@@ -334,6 +334,8 @@ export default {
         fetch('https://quality.nanodoctor.pro/', {
           method: 'POST',
           body: formData
+        }).then(function (response) {
+          location.href = response.url
         })
       })
     }
