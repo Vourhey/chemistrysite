@@ -62,7 +62,7 @@ def index(request):
         infoDict['date']            = timeStamp
         infoDict['batch_number']    = int(request.POST.get("batchNumber", ""))
         infoDict['place']           = request.POST.get("placeOfProduction", "")
-        infoDict['owner']           = request.POST.get("tecnologyOwner", "")
+        infoDict['owner']           = request.POST.get("technologyOwner", "")
         infoDict['selection']       = request.POST.get("responsibleForSelection", "")
         infoDict['responsible']     = request.POST.get("responsibleForBatch", "")
         infoDict['signature']       = request.POST.get("signature", "")
