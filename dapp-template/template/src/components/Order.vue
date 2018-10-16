@@ -284,6 +284,12 @@ export default {
           })
           return true
         })
+        .catch((e) => {
+          console.log(e)
+          setTimeout(() => {
+            this.newLiability(liability)
+          }, 2000)
+        })
     },
     order () {
       this.liability = null
@@ -298,8 +304,8 @@ export default {
           deadline: r.number + 1000
         }
         robonomics.postAsk(this.model, ask)
-          .then((liability) => {
-            this.newLiability(liability)
+          .then((liability) => this.newLiability(liability))
+          .then(() => {
             this.loadingOrder = false
           })
           .catch((e) => {
