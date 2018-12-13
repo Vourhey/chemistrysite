@@ -35,27 +35,32 @@ class PublishToBlockchain:
             return response
         rospy.Service('get_result', PublishToBC, get_file_cb)
 
-        def callback(data):
-            rospy.loginfo("I got the task")
+        def newLiability(l):
+            self.liability = l.address
+            rospy.loginfo("Got new liability {}".format(l.address))
 
-            while not self.got_file:
-                rospy.sleep(1)
+            prefix = '/liability/eth_' + self.liability
+            rospy.Subscriber(prefix + '/task', String, self.callback)
 
-            hash = self.ipfs.add(self.path_to_file)
-            self.res = hash['Hash']
-            rospy.loginfo("Result is " + self.res)
-            self.pub.publish(self.res)
+            rospy.wait_for_service("/liability/start")
+            rospy.ServiceProxy('/liability/start', StartLiability)(StartLiabilityRequest(address=self.liability))
+        rospy.Subscriber("/liability/ready", Liability, newLiability)
 
-            rospy.wait_for_service("liability/finish")
-            fin = rospy.ServiceProxy("liability/finish", Empty)
-            rospy.loginfo("finishing...")
-            fin()
-        rospy.Subscriber("/task", String, callback)
+    def callback(self, data):
+        rospy.loginfo("I got the task")
 
-        def save_address(data):
-            rospy.loginfo('New liability: {}'.format(data.address))
-            self.address = data.address
-        rospy.Subscriber("liability/incoming", Liability, save_address)
+        while not self.got_file:
+            rospy.sleep(1)
+
+        hash = self.ipfs.add(self.path_to_file)
+        self.res = hash['Hash']
+        rospy.loginfo("Result is " + self.res)
+        self.pub.publish(self.res)
+
+        rospy.wait_for_service('/liability/finish')
+        fin = rospy.ServiceProxy('/liability/finish', FinishLiability)
+        fin(FinishLiabilityRequest(address=self.liability, success=True))
+        rospy.loginfo("Finished")
 
     def spin(self):
         rospy.spin()

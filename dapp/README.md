@@ -1,3 +1,6 @@
+# chemistry-quality-control
+
+> A Vue.js project
 
 ## Build Setup
 

@@ -1,7 +1,7 @@
 import rospy
-from robonomics_lighthouse.msg import Ask, Bid
+from robonomics_msgs.msg import Demand, Offer, Multihash
 from std_srvs.srv import Empty, EmptyResponse
-from web3 import Web3, HTTPProvider
+#from web3 import Web3, HTTPProvider
 
 class MakeAskBid:
 
@@ -13,28 +13,27 @@ class MakeAskBid:
     def __init__(self):
         rospy.init_node("make_ask_bid_node")
 
-        self.web3 = Web3(HTTPProvider("http://127.0.0.1:8545"))
-        self.signing_bid = rospy.Publisher('liability/infochan/signing/bid', Bid, queue_size=128)
+        #self.web3 = Web3(HTTPProvider("http://127.0.0.1:8545"))
+        self.signing_offer = rospy.Publisher('/liability/infochan/eth/signing/offer', Offer, queue_size=128)
 
         def callback(m):
-            rospy.loginfo("about to make a bid")
+            rospy.loginfo("about to make a offer")
 
-            if m.model != self.model:
+            if m.model.multihash != Multihash(multihash=self.model):
                 return
-            
-            block = self.web3.eth.getBlock('latest')
-            deadline = block.number + 10000 # should be enough for a day
 
-            msg = Bid()
-            msg.model = self.model
+            msg = Offer()
+            msg.model = m.model
             msg.objective   = m.objective
             msg.token = m.token
-            msg.cost = self.cost
+            msg.cost = m.cost
+            msg.validator = m.validator
+            msg.lighthouse = m.lighthouse
             msg.lighthouseFee = 0
-            msg.deadline = deadline
+            msg.deadline = m.deadline + 100
             rospy.loginfo("Publishing")
-            self.signing_bid.publish(msg)
-        rospy.Subscriber('liability/infochan/incoming/ask', Ask, callback)
+            self.signing_offer.publish(msg)
+        rospy.Subscriber('/liability/infochan/incoming/demand', Demand, callback)
 
     def spin(self):
         rospy.spin()
