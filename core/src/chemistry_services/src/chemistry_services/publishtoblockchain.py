@@ -4,6 +4,7 @@ from std_msgs.msg import String
 from std_srvs.srv import Empty
 from chemistry_services.srv import *
 from robonomics_liability.msg import Liability
+from robonomics_liability.srv import *
 
 class PublishToBlockchain:
 

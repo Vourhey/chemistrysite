@@ -19,7 +19,7 @@ class MakeAskBid:
         def callback(m):
             rospy.loginfo("about to make a offer")
 
-            if m.model.multihash != Multihash(multihash=self.model):
+            if m.model != Multihash(multihash=self.model):
                 return
 
             msg = Offer()
