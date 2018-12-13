@@ -30,7 +30,7 @@ class PublishToBlockchain:
 
             response = PublishToBCResponse()
             response.result = self.res
-            response.address = self.address
+            response.address = self.liability
             del self.res
             self.got_file = False
             return response
