@@ -13,7 +13,7 @@ import os
 import json
 import rospy
 import ipfsapi
-from chemistry_services.srv import * 
+from chemistry_services.srv import *
 
 def getTimeStamp():
     ts = time.time()
@@ -25,7 +25,7 @@ def getResult():
     try:
         pub = rospy.ServiceProxy('/get_result', PublishToBC)
         r = pub("")
-        return [r.result, r.address]            
+        return [r.result, r.address]
     except rospy.ServiceException as e:
         print ("Service call failed: {}".format(e))
 
@@ -38,20 +38,16 @@ def publishAFileToBC(path):
         print("Service call failed: {}".format(e))
 
 def extractConcentration(path):
-    with open(path, encoding='cp1252') as f:    # not universal because of cp1252
+    with open(path, encoding='cp1251') as f:    # not universal because of cp1252
         lines = f.read().splitlines()
+        f.close()
 
-        fit = []
         for l in lines:
-            if l.startswith('Concentration'):
-                toappend = l.split(' ')[1]
-                fit.append(toappend.replace(',', '.'))  # correct , to . for int convertion
+            if l.startswith('Концентрация'):
+                found = l.split(' ')[-1]
+                break
 
-        fit = list(map(lambda x: x.split('±')[0], fit))
-        print(fit)
-        fit = list(map(lambda x: int(float(x)), fit))
-
-        return sum(fit) / len(fit)
+        return found
 
 @csrf_exempt
 def index(request):
@@ -84,7 +80,7 @@ def index(request):
             f.close()
 
         zipFile = djangoSettings.MEDIA_ROOT + '/' + timeStamp + "/publish.zip"
-        with zipfile.ZipFile(zipFile, 'w') as z: 
+        with zipfile.ZipFile(zipFile, 'w') as z:
             z.write(saveInfoPath, os.path.basename(saveInfoPath))
             z.write(savePath, os.path.basename(savePath))
             z.close()
