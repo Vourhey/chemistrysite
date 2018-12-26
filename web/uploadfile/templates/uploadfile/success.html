@@ -37,43 +37,43 @@
 <body>
     <div class="block">
         <img src="{% static "img/success.png" %}" alt="" />
-        <h1>Nano Doctor</h2>
+        <h1>BLOCKATOR</h2>
         <div>
             <table class="table table-striped" style="text-align: left;">
                 <tr>
-                    <th scope="row">Date:</th>
+                    <th scope="row">Дата:</th>
                     <td>{{ date }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Batch number:</th>
+                    <th scope="row">Номер партии:</th>
                     <td>{{ batch_number }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Place:</th>
+                    <th scope="row">Место производства:</th>
                     <td>{{ place }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Owner:</th>
+                    <th scope="row">Владелец технологии:</th>
                     <td>{{ owner }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Responsible for selection:</th>
+                    <th scope="row">Ответственный за выборку:</th>
                     <td>{{ selection }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Responsible for batch:</th>
+                    <th scope="row">Ответственный за партию:</th>
                     <td>{{ responsible }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Signature:</th>
+                    <th scope="row">Цифровая подпись:</th>
                     <td style="word-break: break-all;">{{ signature }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Concentration:</th>
+                    <th scope="row">Концентрация:</th>
                     <td>{{ concentration }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Log file:</th>
+                    <th scope="row">Результаты измерений:</th>
                     <td><a href="https://ipfs.io/ipfs/{{ ipfs }}">{{ ipfs }}</a></td>
                 </tr>
             </table>
