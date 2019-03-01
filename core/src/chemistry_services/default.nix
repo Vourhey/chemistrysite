@@ -19,3 +19,5 @@ mkRosPackage rec {
     maintainers = with maintainers; [ vourhey ];
   };
 
+}
+

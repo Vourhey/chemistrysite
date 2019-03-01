@@ -1,7 +1,8 @@
 import rospy
-from robonomics_msgs.msg import Demand, Offer, Multihash
-from std_srvs.srv import Empty, EmptyResponse
-#from web3 import Web3, HTTPProvider
+from robonomics_msgs.msg import Demand, Offer
+from ethereum_common.msg import UInt256
+from ethereum_common.srv import BlockNumber
+from ipfs_common.msg import Multihash
 
 class MakeAskBid:
 
@@ -20,18 +21,21 @@ class MakeAskBid:
             rospy.loginfo("about to make a offer")
 
             if m.model != Multihash(multihash=self.model):
+                rospy.loginfo("Doesn't fit")
                 return
 
-            msg = Offer()
-            msg.model = m.model
-            msg.objective   = m.objective
-            msg.token = m.token
-            msg.cost = m.cost
-            msg.validator = m.validator
-            msg.lighthouse = m.lighthouse
-            msg.lighthouseFee = 0
-            msg.deadline = m.deadline + 100
-            rospy.loginfo("Publishing")
+            msg                 = Offer()
+            msg.model           = m.model
+            msg.objective       = m.objective
+            msg.token           = m.token
+            msg.cost            = m.cost
+            msg.validator       = m.validator
+            msg.lighthouse      = m.lighthouse
+            rospy.wait_for_service('/eth/current_block')
+            msg.lighthouseFee   = UInt256('0')
+            msg.deadline        = UInt256(str(rospy.ServiceProxy('/eth/current_block', BlockNumber)().number + 100))
+            rospy.loginfo("Publishing...")
+            rospy.loginfo(msg)
             self.signing_offer.publish(msg)
         rospy.Subscriber('/liability/infochan/incoming/demand', Demand, callback)
 
