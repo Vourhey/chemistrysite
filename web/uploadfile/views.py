@@ -13,6 +13,7 @@ import os
 import json
 import rospy
 import ipfsapi
+import requests
 from chemistry_services.srv import *
 
 def getTimeStamp():
@@ -90,8 +91,10 @@ def index(request):
         ipfsHash = r[0]
         ethAddress = r[1]
 
+        shorturl = requests.post("https://url.today/yourls-api.php", data={'username': 'vadim.manaenko', 'password': '', 'action': 'shorturl', 'url': 'https://quality.nanodoctor.pro/getinfo/' + ipfsHash, 'format': 'simple'})
+
         # generate QR-code
-        qrcode = pyqrcode.create('https://quality.nanodoctor.pro/getinfo/' + ipfsHash)
+        qrcode = pyqrcode.create(shorturl.text)
         print(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png')
         qrcode.png(djangoSettings.MEDIA_ROOT + '/' + timeStamp + '/' + 'qr.png', scale=5)
 
