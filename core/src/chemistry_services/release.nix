@@ -1,5 +1,10 @@
-{ nixpkgs ? import ./fetchNixpkgs.nix { } }:
+{ nixpkgs ? import ./fetchNixpkgs.nix { }
+, system ? builtins.currentSystem
+}:
 
-rec {
-  chemistry_services = nixpkgs.callPackage ./default.nix { };
+let
+  pkgs = import nixpkgs { inherit system; };
+
+in rec {
+  package = pkgs.callPackage ./default.nix { };
 }
