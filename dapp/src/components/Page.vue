@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1 class="text-md-center">Chemistry Quality Control</h1>
+    <h1 class="text-md-center">chemistry-quality-control</h1>
     <Order />
   </div>
 </template>
