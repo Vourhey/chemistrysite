@@ -37,8 +37,8 @@ class PublishToBlockchain:
         rospy.Service('get_result', PublishToBC, get_file_cb)
 
         def newLiability(l):
-            self.liability = l.address
-            rospy.loginfo("Got new liability {}".format(l.address))
+            self.liability = l.address.address
+            rospy.loginfo("Got new liability {}".format(self.liability))
 
             prefix = '/liability/eth_' + self.liability
             rospy.Subscriber(prefix + '/task', String, self.callback)
