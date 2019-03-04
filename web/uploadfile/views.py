@@ -56,7 +56,7 @@ def index(request):
         timeStamp = getTimeStamp()
         infoDict = {}
 
-        infoDict['date']            = timeStamp
+        # infoDict['date']            = timeStamp
         infoDict['batch_number']    = int(request.POST.get("batchNumber", ""))
         infoDict['place']           = request.POST.get("placeOfProduction", "")
         infoDict['owner']           = request.POST.get("technologyOwner", "")
