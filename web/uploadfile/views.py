@@ -86,10 +86,14 @@ def index(request):
             z.write(savePath, os.path.basename(savePath))
             z.close()
 
+        '''
         publishAFileToBC(zipFile)
         r = getResult()
-        ipfsHash = r[0]
-        ethAddress = r[1]
+        '''
+
+        ipfs = ipfsapi.connect('127.0.0.1', 5001)
+        ipfsHash = ipfs.add(zipFile)
+        # ethAddress = r[1]
 
         shorturl = requests.post("https://url.today/yourls-api.php", data={'username': 'vadim.manaenko', 'password': '', 'action': 'shorturl', 'url': 'https://quality.nanodoctor.pro/getinfo/' + ipfsHash, 'format': 'simple'})
 
