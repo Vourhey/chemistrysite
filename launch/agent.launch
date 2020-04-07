@@ -1,0 +1,33 @@
+<launch>
+    <arg name="ns" default="blockator" />
+
+    <arg name="login" default="" />
+    <arg name="email_from" default="" />
+    <arg name="email_password" default="" />
+
+    <arg name="pinata_api_key" default="" />
+    <arg name="pinata_secret_api_key" default="" />
+
+    <arg name="model" default="QmXUgKs2coAPkq7QNeL3s1MnxwZyuc8A8ExFYEocmDoepf" />
+    <arg name="token" default="0x7dE91B204C1C737bcEe6F000AAA6569Cf7061cb7" />
+
+    <node ns="$(arg ns)" name="trader" pkg="blockator_agent" type="trader_node" output="screen" respawn="true">
+        <param name="model" value="$(arg model)" />
+        <param name="token" value="$(arg token)" />
+        <param name="order_lifetime" value="100" />
+    </node>
+
+    <node ns="$(arg ns)" name="worker" pkg="blockator_agent" type="worker_node" output="screen" respawn="true">
+        <param name="model" value="$(arg model)" />
+
+        <param name="smtp_provider" value="smtp.gmail.com" />
+        <param name="smtp_port" value="587" />
+        <param name="login" value="$(arg login)" /> <!-- Gmail account login -->
+        <param name="email_from" value="$(arg email_from)" /> <!-- if empty, use login as email from -->
+        <param name="email_password" value="$(arg email_password)" /> <!-- app password -->
+        <param name="admin_email" value="vadim.manaenko@aira.life" />
+
+        <param name="pinata_api_key" value="$(arg pinata_api_key)" />
+        <param name="pinata_secret_api_key" value="$(arg pinata_secret_api_key)" />
+    </node>
+</launch>

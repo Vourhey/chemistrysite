@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# ROS
+import rospy
+
+# Robonomics communication
+from robonomics_msgs.msg import Offer, Demand
+from ethereum_common.msg import Address, UInt256
+from ethereum_common.srv import Accounts, BlockNumber
+from ipfs_common.msg import Multihash
+
+
+class TraderNode:
+    # Let's assume we use XRT Token by Robonomics
+    # And also let's assume its price is $10 per token
+    TOKEN_DECIMALS = 9
+    TOKEN_PRICE = 10
+
+    def __init__(self):
+        rospy.init_node('trader')
+        rospy.loginfo('Launching trader node...')
+
+        rospy.wait_for_service('/eth/current_block')
+        rospy.wait_for_service('/eth/accounts')
+        self.accounts = rospy.ServiceProxy('/eth/accounts', Accounts)()
+        rospy.loginfo(str(self.accounts))  # AIRA ethereum addresses
+
+        self.signing_offer = rospy.Publisher('/liability/infochan/eth/signing/offer', Offer, queue_size=128)
+
+        rospy.Subscriber('/liability/infochan/incoming/demand', Demand, self.on_incoming_demand)
+
+        self.MODEL = rospy.get_param("~model")
+        self.TOKEN = rospy.get_param("~token")
+
+        rospy.loginfo('Trader node is launched')
+
+    def on_incoming_demand(self, incoming: Demand):
+        rospy.loginfo('Incoming demand [{}]...'.format(incoming.model.multihash))
+        if incoming.model.multihash == self.MODEL and incoming.token.address == self.TOKEN:
+            rospy.loginfo('For my model and token!')
+            if incoming.cost.uint256 == "0":
+                rospy.loginfo("Calculating the price...")
+                price = self.calc_price()
+                rospy.loginfo("The price is {}".format(price))
+                self.make_offer(incoming, price)
+        else:
+            rospy.loginfo('Doesn\'t fit my model or token, skip it')
+
+    def calc_price(self) -> int:
+        return int(0.000001 * (10 ** self.TOKEN_DECIMALS) / self.TOKEN_PRICE)
+
+    def make_deadline(self) -> UInt256:
+        lifetime = int(rospy.get_param('~order_lifetime'))
+        deadline = rospy.ServiceProxy('/eth/current_block', BlockNumber)().number + lifetime
+        return UInt256(str(deadline))
+
+    def make_offer(self, demand: Demand, price: int):
+        rospy.loginfo('Making offer...')
+
+        offer = Offer()
+        offer.model = Multihash(self.MODEL)
+        offer.objective = demand.objective
+        offer.token = Address(self.TOKEN)
+        offer.cost = UInt256(str(price))
+        offer.lighthouse = demand.lighthouse
+        offer.validator = demand.validator
+        offer.lighthouseFee = UInt256("0")
+        offer.deadline = self.make_deadline()
+
+        self.signing_offer.publish(offer)
+        rospy.loginfo("Offer is sent!")
+
+    def spin(self):
+        rospy.spin()
+
+
+if __name__ == '__main__':
+    TraderNode().spin()

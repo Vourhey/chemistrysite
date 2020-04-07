@@ -1,4 +1,0 @@
-<launch>
-    <node pkg="chemistry_services" name="make_ask_bid" type="makeasksrv" output="screen"/>
-    <node pkg="chemistry_services" name="publish_node" type="publishsrv" output="screen"/>
-</launch>

@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import sentry_sdk
+sentry_sdk.init()
+
+# Standart, System and Third party
+from collections import namedtuple
+import smtplib
+
+# ROS
+import rospy
+from std_msgs.msg import String
+
+# AIRA
+from robonomics_liability.msg import Liability
+from robonomics_liability.srv import StartLiability, FinishLiability
+from robonomics_msgs.msg import Result
+from ipfs_common.ipfs_rosbag import IpfsRosBag
+
+from pinatapy import PinataPy
+import qrcode
+from io import BytesIO
+import base64
+
+
+class WorkerNode:
+
+    current_liability = None
+
+    def __init__(self):
+        rospy.init_node('worker')
+        rospy.loginfo('Launching worker node...')
+
+        rospy.Subscriber('/liability/ready', Liability, self.subscribe_and_start)
+        rospy.Subscriber("/liability/infochan/eth/sending/result", Result, self.pin_result)
+
+        rospy.wait_for_service('/liability/finish')
+
+        self.liability_proxy = namedtuple('liability_srvs_proxy', ['start', 'finish'])(
+                                          rospy.ServiceProxy('/liability/start', StartLiability),
+                                          rospy.ServiceProxy('/liability/finish', FinishLiability))
+
+        pinata_api_key = rospy.get_param("~pinata_api_key")
+        pinata_secret_api_key = rospy.get_param("~pinata_secret_api_key")
+
+        if pinata_api_key == "" or pinata_secret_api_key == "":
+            self.pinata = None
+        else:
+            self.pinata = PinataPy(rospy.get_param("~pinata_api_key"),
+                                   rospy.get_param("~pinata_secret_api_key"))
+
+        rospy.loginfo('Worker node is launched')
+
+    def subscribe_and_start(self, liability: Liability):
+        if liability.model.multihash != rospy.get_param("~model"):
+            rospy.loginfo("Liability is not for me")
+            return
+
+        rospy.loginfo("Starting process {}...".format(liability.address.address))
+        self.current_liability = liability
+
+        prefix = "/liability/eth_" + liability.address.address
+        qr_publisher = rospy.Publisher(prefix + "/qr", String, queue_size=128)
+
+        self.liability_proxy.start(liability.address)
+
+        rospy.sleep(2)  # allow all publishers to be registered
+
+        rospy.loginfo("Downloading the objective [{}]".format(liability.objective.multihash))
+        bag = IpfsRosBag(multihash=liability.objective).messages
+
+        self.send_email(bag)
+
+        encoded_qr = self.generate_qr(liability.address.address)
+        qr_publisher.publish(String(encoded_qr))
+
+        self.pin_file_to_ipfs(bag)
+
+        rospy.sleep(bag.bag.get_message_count())    # each message is published every second, so we wait `messages` seconds
+
+        rospy.loginfo("Finishing...")
+
+        self.liability_proxy.finish(liability.address, True)
+
+        rospy.loginfo("The task {} is done".format(liability.address.address))
+
+    def generate_qr(self, liability: str) -> str:
+        base_url = "https://dapp.airalab.org/#/blockator"
+        url = f"{base_url}/{liability}/"
+
+        qr = qrcode.QRCode(
+            version = 1,
+            error_correction = qrcode.constants.ERROR_CORRECT_H,
+            box_size = 4,
+            border = 4,
+        )
+
+        qr.add_data(url)
+        qr.make(fit=True)
+        img = qr.make_image()
+
+        buffered = BytesIO()
+        img.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        return img_str
+
+    def send_email(self, messages: dict):
+        for k, v in messages.items():
+            if k.endswith("/email"):
+                if v[0].data != "":
+                    self.__send_email(v[0].data)
+                return
+
+    def __send_email(self, addr: str):
+        rospy.loginfo("Sending an email to {}".format(addr))
+        login = rospy.get_param("~login")
+        email_from = rospy.get_param("~email_from")
+
+        if not email_from:
+            email_from = login
+
+        try:
+            serv = smtplib.SMTP(rospy.get_param('~smtp_provider'), int(rospy.get_param('~smtp_port')))
+            serv.ehlo()
+            serv.starttls()
+            # serv.ehlo()
+            serv.login(login, rospy.get_param('~email_password'))
+        except:
+            rospy.loginfo("Error while sending an email")
+
+        liability_link = 'https://etherscan.io/address/{}#readContract'.format(self.current_liability.address.address)
+        footer = '\n--\nBest regards,\nDigital Passport Registration by Robonomics.'
+        msg = '\r\n'.join([
+            'From: {}'.format(email_from),
+            'To: {}'.format(addr),
+            'Subject: Digital Passport Registration',
+            '',
+            "New passport was registered by {} at liability {}.{}"
+            .format(addr, liability_link, footer)
+        ])
+        serv.sendmail(login, addr, msg)
+        rospy.loginfo("Successfully sent!")
+        serv.quit()
+
+
+    def pin_result(self, result: Result):
+        if self.pinata is not None:
+            self.pinata.add_hash_to_pin_queue(result.result.multihash)
+
+    def pin_file_to_ipfs(self, bag: dict):
+        if self.pinata is not None:
+            try:
+                self.pinata.add_hash_to_pin_queue(bag["/meta"][0].data)
+            except:
+                rospy.loginfo("There is no /meta field")
+
+            try:
+                for i in bag["/images"]:
+                    self.pinata.add_hash_to_pin_queue(i.data)
+            except:
+                rospy.loginfo("There is no images")
+
+    def spin(self):
+        rospy.spin()
+
+
+if __name__ == '__main__':
+    WorkerNode().spin()

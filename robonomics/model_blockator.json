@@ -1,0 +1,59 @@
+{
+  "name": "chemistry-blockator-agent",
+  "description": "A multipurpose product for combatting viruses and bacteria of all kinds. Its active component (chlorine dioxide) creates an antimicrobial environment within the breathing zone of the user measuring approximately one cubic meter.",
+  "author": "vadim.manaenko@aira.life",
+  "license": "BSD3",
+  "rosbag_scheme": [
+    {
+      "suffix": "/email",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "String"
+    },
+    {
+      "suffix": "/manufacturer",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "String"
+    },
+    {
+      "suffix": "/production_date",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "String"
+    },
+    {
+      "suffix": "/batch",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "String"
+    },
+    {
+      "suffix": "/expert",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "String"
+    },
+    {
+      "suffix": "/protocol",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "String"
+    },
+    {
+      "suffix": "/concentration",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "String"
+    },
+    {
+      "suffix": "/deviation",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "String"
+    },
+    {
+      "suffix": "/logs",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "IPFSStr"
+    },
+    {
+      "suffix": "/images",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "IPFSBin"
+    }
+  ]
+}
+
