@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import rospy
 import sentry_sdk
 sentry_sdk.init(rospy.get_param("/blockator/worker/sentry"))
 
@@ -8,7 +9,6 @@ from collections import namedtuple
 import smtplib
 
 # ROS
-import rospy
 from std_msgs.msg import String
 
 # AIRA
