@@ -8,6 +8,8 @@
     <arg name="pinata_api_key" default="" />
     <arg name="pinata_secret_api_key" default="" />
 
+    <arg name="sentry" default="" />
+
     <arg name="model" default="QmXUgKs2coAPkq7QNeL3s1MnxwZyuc8A8ExFYEocmDoepf" />
     <arg name="token" default="0x2a9688d4FfD94FE6C4447f60B7b25BE0a1ab87b4" />
 
@@ -29,5 +31,7 @@
 
         <param name="pinata_api_key" value="$(arg pinata_api_key)" />
         <param name="pinata_secret_api_key" value="$(arg pinata_secret_api_key)" />
+
+        <param name="sentry" value="$(arg sentry)" />
     </node>
 </launch>
