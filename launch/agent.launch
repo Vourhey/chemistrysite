@@ -9,7 +9,7 @@
     <arg name="pinata_secret_api_key" default="" />
 
     <arg name="model" default="QmXUgKs2coAPkq7QNeL3s1MnxwZyuc8A8ExFYEocmDoepf" />
-    <arg name="token" default="0x7dE91B204C1C737bcEe6F000AAA6569Cf7061cb7" />
+    <arg name="token" default="0x2a9688d4FfD94FE6C4447f60B7b25BE0a1ab87b4" />
 
     <node ns="$(arg ns)" name="trader" pkg="blockator_agent" type="trader_node" output="screen" respawn="true">
         <param name="model" value="$(arg model)" />
