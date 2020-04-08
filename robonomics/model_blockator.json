@@ -53,6 +53,11 @@
       "suffix": "/images",
       "rosbag_type": "std_msgs/String",
       "data_type": "IPFSBin"
+    },
+    {
+      "suffix": "/qr",
+      "rosbag_type": "std_msgs/String",
+      "data_type": "String"
     }
   ]
 }
