@@ -1,34 +1,22 @@
-# A Quality Control System for NanoDoctor.pro
-## Core
-Contains core services. To run:
-```
-cd core
-catkin_make install
-source install/setup.bash
-roslaunch chemistry_services services.launch
-```
-### Requirements:
-* [robonomics_comm](https://github.com/airalab/robonomics_comm)
-* parity --chain kovan --unlock 0x... --password pass
-* ipfs daemon --enable-pubsub-experiment
-* roslaunch robonomics_lighthouse lighthouse.launch
-* roslaunch robonomics_liability liability.launch
+# A Quality Control System for Blockator.ru 
 
-## Web
+The agent issues a digital passport for a batch of production
+
+The Dapp is [here](https://dapp.airalab.org/#/blockator/)
+
+For the list of topics see [robonomics/model_blockator.json](robonomics/model_blockator.json)
+
+## Build
 
 ```
-cd web
-nix-shell
-virtualenv env
-source env/bin/activate
-python manage.py runserver
+nix build -f release.nix
 ```
 
-### Requirements
+## Launch
 
-* Django
-* virtualenv
-* libs: ipfsapi, pyqrcode, pypng
-* account must have XRT and ETH
-* approve for spender and miner
+```
+roslaunch blockator_agent agent.launch  login:=LOGIN email_from:=[FROM] email_password:=PASSWORD \
+    pinata_api_key:=[API_KEY] pinata_secret_api_key:=[SECRET_API_KEY] \
+    sentry:=[SENTRY]
+```
 
