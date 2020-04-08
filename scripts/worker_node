@@ -67,14 +67,14 @@ class WorkerNode:
         rospy.sleep(2)  # allow all publishers to be registered
 
         rospy.loginfo("Downloading the objective [{}]".format(liability.objective.multihash))
-        bag = IpfsRosBag(multihash=liability.objective).messages
+        bag = IpfsRosBag(multihash=liability.objective)
 
-        self.send_email(bag)
+        self.send_email(bag.messages)
 
         encoded_qr = self.generate_qr(liability.address.address)
         qr_publisher.publish(String(encoded_qr))
 
-        self.pin_file_to_ipfs(bag)
+        self.pin_file_to_ipfs(bag.messages)
 
         rospy.sleep(bag.bag.get_message_count())    # each message is published every second, so we wait `messages` seconds
 

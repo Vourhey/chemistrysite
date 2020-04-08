@@ -10,7 +10,7 @@
 
     <arg name="sentry" default="" />
 
-    <arg name="model" default="QmXUgKs2coAPkq7QNeL3s1MnxwZyuc8A8ExFYEocmDoepf" />
+    <arg name="model" default="QmbDQfJQocLYoe6bZZuWEx3mMHrP1d4Z6kfLLCrNUPzavT" />
     <arg name="token" default="0x2a9688d4FfD94FE6C4447f60B7b25BE0a1ab87b4" />
 
     <node ns="$(arg ns)" name="trader" pkg="blockator_agent" type="trader_node" output="screen" respawn="true">
